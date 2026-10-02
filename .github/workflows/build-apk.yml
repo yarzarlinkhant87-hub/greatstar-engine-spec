@@ -38,11 +38,12 @@ jobs:
       - name: Install GreatStar Custom App Icons
         run: |
           if [ -f "public/greatstar_logo.jpg" ]; then
+            # Remove anydpi-v26 xml to prevent duplicate resource error with raster icon files
+            rm -rf android/app/src/main/res/mipmap-anydpi-v26
             for dir in android/app/src/main/res/mipmap-*; do
               if [ -d "$dir" ]; then
                 cp public/greatstar_logo.jpg "$dir/ic_launcher.png"
                 cp public/greatstar_logo.jpg "$dir/ic_launcher_round.png"
-                cp public/greatstar_logo.jpg "$dir/ic_launcher_foreground.png"
               fi
             done
           fi
