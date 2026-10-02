@@ -1,0 +1,44 @@
+{
+  "name": "Agri Torque Master - စက်မှုလယ်ယာဆွဲပေါင်",
+  "short_name": "AgriTorque",
+  "description": "စက်မှုလယ်ယာ ယန္တရား & အင်ဂျင်ပြုပြင်ရေး စံချိန်စံညွှန်း မူရင်းလက်စွဲ",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#022c22",
+  "theme_color": "#022c22",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

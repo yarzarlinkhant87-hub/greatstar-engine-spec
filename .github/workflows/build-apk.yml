@@ -1,0 +1,66 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Web App Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Install Stable Capacitor 6
+        run: |
+          npm install @capacitor/core@6.2.0 @capacitor/cli@6.2.0 @capacitor/android@6.2.0 --legacy-peer-deps
+
+      - name: Prepare Clean Android Project
+        run: |
+          rm -rf android
+          npx cap add android
+          npx cap copy android
+
+      - name: Install GreatStar Custom App Icons
+        run: |
+          if [ -f "public/greatstar_logo.jpg" ]; then
+            for dir in android/app/src/main/res/mipmap-*; do
+              if [ -d "$dir" ]; then
+                cp public/greatstar_logo.jpg "$dir/ic_launcher.png"
+                cp public/greatstar_logo.jpg "$dir/ic_launcher_round.png"
+                cp public/greatstar_logo.jpg "$dir/ic_launcher_foreground.png"
+              fi
+            done
+          fi
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 17
+
+      - name: Build Debug APK with Gradle
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload GreatStar Android APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GreatStar-ZNW-Engine-Spec-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

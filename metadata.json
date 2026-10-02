@@ -1,0 +1,8 @@
+{
+  "name": "Agri Torque Master - စက်မှုလယ်ယာဆွဲပေါင်လက်စွဲ",
+  "description": "မြန်မာနိုင်ငံ ဝပ်ရှော့လုပ်ငန်းခွင်သုံး စက်မှုလယ်ယာ ယန္တရား & အင်ဂျင်ပြုပြင်ရေး စံချိန်စံညွှန်း မူရင်းလက်စွဲ (Kubota, Yanmar, Ford, John Deere)",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

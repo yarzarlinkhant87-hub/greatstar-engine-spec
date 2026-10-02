@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047" />
+      <stop offset="50%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+    <linearGradient id="emerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="url(#gold)" stroke-width="6" opacity="0.6" />
+  
+  <!-- Tractor / Gear Graphic -->
+  <g transform="translate(256, 210) scale(1.15)">
+    <!-- Engine Gear Ring -->
+    <circle r="110" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="16 12" opacity="0.4" />
+    <!-- Center Wrench & Piston Emblem -->
+    <path d="M-60 40 L-20 0 L-40 -20 L-20 -40 L0 -20 L40 -60 L60 -40 L20 0 L40 20 L20 40 L0 20 L-40 60 Z" fill="url(#gold)" opacity="0.15" />
+    
+    <!-- Stylized Tractor Icon -->
+    <path d="M-70,50 C-70,25 -50,5 -25,5 C0,5 20,25 20,50" fill="none" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="-25" cy="50" r="32" fill="#042f2e" stroke="url(#gold)" stroke-width="10"/>
+    <circle cx="55" cy="55" r="20" fill="#042f2e" stroke="url(#gold)" stroke-width="8"/>
+    
+    <!-- Tractor Body & Hood -->
+    <path d="M-25,5 L-25,-35 L20,-35 L30,-15 L65,-15 L70,30 L55,30" fill="none" stroke="url(#emerald)" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Exhaust Stack -->
+    <path d="M50,-15 L50,-55 L55,-55" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
+    <!-- Steering / Cabin -->
+    <path d="M-15,-35 L-5,-60 L5,-60" fill="none" stroke="#fde047" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="256" y="380" text-anchor="middle" font-family="system-ui, sans-serif" font-size="42" font-weight="900" fill="url(#gold)" letter-spacing="2">AGRI-MASTER</text>
+  <text x="256" y="425" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#a7f3d0" letter-spacing="4">စက်မှုလယ်ယာဆွဲပေါင်</text>
+  <text x="256" y="460" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#6ee7b7">KUBOTA • YANMAR • FORD • JD</text>
+</svg>
