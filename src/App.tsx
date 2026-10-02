@@ -36,6 +36,8 @@ import {
   QrCode,
   Cog,
   Activity,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import {
   AgriEngine,
@@ -85,6 +87,18 @@ export default function App() {
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>(() => {
     return (localStorage.getItem('agri_last_zoom') as ZoomLevel) || 'large';
   });
+
+  // Numeric zoom percentage (85% to 220%) with persistence
+  const [zoomScale, setZoomScale] = useState<number>(() => {
+    const saved = localStorage.getItem('agri_zoom_scale');
+    return saved ? Number(saved) : 120;
+  });
+
+  const handleZoomChange = (newScale: number) => {
+    const clamped = Math.min(220, Math.max(85, newScale));
+    setZoomScale(clamped);
+    localStorage.setItem('agri_zoom_scale', String(clamped));
+  };
 
   // Bookmarks / Favorites saved to persistent storage
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -764,6 +778,64 @@ export default function App() {
             </div>
           </div>
 
+          {/* Zoom & Font Size Quick Controller Bar for Workshop Mechanics */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-amber-500/40 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <ZoomIn className="w-4 h-4" />
+              </span>
+              <div>
+                <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                  <span>စာလုံး & ဇယား အရွယ်အစား (Zoom):</span>
+                  <span className="text-amber-400 font-mono font-black text-sm">{zoomScale}%</span>
+                </span>
+                <p className="text-[10px] text-slate-400">
+                  စခရင်ပေါ်တွင် လက် ၂ ချောင်းဖြင့်လည်း ဆွဲချဲ့ (Pinch to Zoom) နိုင်ပါသည်
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 bg-slate-950/90 p-1 rounded-xl border border-slate-800">
+              <button
+                onClick={() => handleZoomChange(zoomScale - 15)}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs active:scale-95 transition"
+                title="စာလုံး ချုံ့မည်"
+              >
+                <ZoomOut className="w-3.5 h-3.5 inline mr-1" />-
+              </button>
+
+              {[100, 120, 140, 160, 180].map((scale) => (
+                <button
+                  key={scale}
+                  onClick={() => handleZoomChange(scale)}
+                  className={`px-2 py-1 rounded-lg text-xs font-bold transition ${
+                    zoomScale === scale
+                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  {scale}%
+                </button>
+              ))}
+
+              <button
+                onClick={() => handleZoomChange(zoomScale + 15)}
+                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs active:scale-95 transition"
+                title="စာလုံး ချဲ့မည်"
+              >
+                +<ZoomIn className="w-3.5 h-3.5 inline ml-1" />
+              </button>
+
+              <button
+                onClick={() => handleZoomChange(100)}
+                className="text-[10px] px-2 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 ml-1"
+                title="မူလ ၁၀၀% ပြန်ထားမည်"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
           {/* 6. Technical Tabs Navigation (The 5 Core Areas + Diagram + Timing + Diagnostics + Workshop Notes) */}
           <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl overflow-x-auto no-scrollbar shadow-lg">
             <button
@@ -887,8 +959,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* 7. Active Tab View Content */}
-          <div className="transition-all duration-200">
+          {/* 7. Active Tab View Content (Scales with zoomScale) */}
+          <div className="transition-all duration-200 origin-top" style={{ zoom: `${zoomScale}%` }}>
             {/* TAB 1: TORQUE SPECIFICATIONS TABLE */}
             {activeTab === 'torque' && (
               <div className="space-y-3">
@@ -1504,6 +1576,36 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* 14. Floating Sticky Zoom Controller for Quick Access Anywhere */}
+      <aside aria-label="Zoom Controls" className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 bg-slate-950/95 border-2 border-amber-500/50 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-2xl">
+        <button
+          onClick={() => handleZoomChange(zoomScale - 15)}
+          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-90 transition"
+          title="Zoom Out (ချုံ့မည်)"
+        >
+          <ZoomOut className="w-4 h-4 text-slate-300" />
+        </button>
+
+        <button
+          onClick={() => {
+            const nextScale = zoomScale >= 180 ? 100 : zoomScale + 20;
+            handleZoomChange(nextScale);
+          }}
+          className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-xs font-mono shadow-md active:scale-95 transition"
+          title="နှိပ်၍ ချဲ့ကြည့်ပါ (Tap to cycle zoom)"
+        >
+          🔍 {zoomScale}%
+        </button>
+
+        <button
+          onClick={() => handleZoomChange(zoomScale + 15)}
+          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-90 transition"
+          title="Zoom In (ချဲ့မည်)"
+        >
+          <ZoomIn className="w-4 h-4 text-amber-400" />
+        </button>
+      </aside>
     </div>
   );
 }
