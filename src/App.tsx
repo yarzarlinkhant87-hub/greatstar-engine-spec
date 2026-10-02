@@ -1242,9 +1242,12 @@ export default function App() {
               />
             )}
 
-            {/* TAB 5: FUEL SYSTEM & TIMING */}
+            {/* TAB 5: FUEL SYSTEM, NOZZLE PSI & TIMING */}
             {activeTab === 'fuel' && (
-              <FuelSystemTab fuelSystem={currentEngine.fuelSystem} />
+              <FuelSystemTab
+                fuelSystem={currentEngine.fuelSystem}
+                engine={currentEngine}
+              />
             )}
 
             {/* TAB 6: DUMP HYDRAULICS & FAST SPLITTER */}

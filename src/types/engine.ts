@@ -72,6 +72,21 @@ export interface FuelSystemSpec {
   pumpTypeMm: string;
   glowPlugSpec: string;
   nozzleHolderTorque: string;
+  // RPM-stage pressures (Idle, Normal, High-Speed)
+  idleRpm?: string;
+  idleFeedPressurePsi?: string;
+  idleDeliveryMm3?: string;
+  normalRpm?: string;
+  normalFeedPressurePsi?: string;
+  normalDeliveryMm3?: string;
+  highSpeedRpm?: string;
+  highSpeedPressurePsi?: string;
+  highSpeedDeliveryMm3?: string;
+  // Oil Pressure
+  oilPressureIdlePsi?: string;
+  oilPressureHighPsi?: string;
+  // Test Bench & Plunger specs
+  plungerPeakPressureBar?: string;
 }
 
 export interface DumpHydraulicSpec {
