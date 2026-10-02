@@ -38,6 +38,8 @@ import {
   Activity,
   ZoomIn,
   ZoomOut,
+  Wind,
+  Disc,
 } from 'lucide-react';
 import {
   AgriEngine,
@@ -47,6 +49,7 @@ import {
   ZoomLevel,
 } from './types/engine';
 import { allAgriEngines, brandList, categoryList } from './data/agriEngines';
+import { chineseTruckEngines } from './data/chineseTruckData';
 import { InstallPromptBanner } from './components/InstallPromptBanner';
 import { HeadBoltSequenceView } from './components/HeadBoltSequenceView';
 import { ClearancesTab } from './components/ClearancesTab';
@@ -56,6 +59,9 @@ import { ProTipsTab } from './components/ProTipsTab';
 import { TimingGearsTab } from './components/TimingGearsTab';
 import { DiagnosticsTab } from './components/DiagnosticsTab';
 import { DumpTruckHydraulicsTab } from './components/DumpTruckHydraulicsTab';
+import { AirBrakeTab } from './components/AirBrakeTab';
+import { PtoClutchTab } from './components/PtoClutchTab';
+import { TirePressureModal } from './components/TirePressureModal';
 import { GreatStarLogo } from './components/GreatStarLogo';
 
 const LOGO_SRC = '/greatstar_logo.jpg';
@@ -66,6 +72,13 @@ export default function App() {
     return localStorage.getItem('agri_last_engine_id') || allAgriEngines[0].id;
   });
 
+  // 2 Master Pillars State: 'agri' (စက်မှုလယ်ယာ) vs 'truck' (တရုတ်ဒန့်ကားကြီးများ)
+  const [mainPillar, setMainPillar] = useState<'agri' | 'truck'>(() => {
+    return (localStorage.getItem('agri_main_pillar') as any) || 'agri';
+  });
+
+  const [showTireModal, setShowTireModal] = useState(false);
+
   const [selectedBrand, setSelectedBrand] = useState<BrandId>(() => {
     return (localStorage.getItem('agri_last_brand') as BrandId) || 'all';
   });
@@ -75,7 +88,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState<
-    'torque' | 'sequence' | 'timing_gears' | 'clearances' | 'fuel' | 'dump_hydraulics' | 'diagnostics' | 'fluids' | 'protips' | 'notes'
+    'torque' | 'sequence' | 'timing_gears' | 'clearances' | 'fuel' | 'dump_hydraulics' | 'air_brake' | 'pto_clutch' | 'diagnostics' | 'fluids' | 'protips' | 'notes'
   >(() => {
     return (localStorage.getItem('agri_last_tab') as any) || 'torque';
   });
@@ -98,6 +111,33 @@ export default function App() {
     const clamped = Math.min(220, Math.max(85, newScale));
     setZoomScale(clamped);
     localStorage.setItem('agri_zoom_scale', String(clamped));
+    if (typeof document !== 'undefined') {
+      try {
+        (document.body.style as any).zoom = `${clamped}%`;
+      } catch {}
+    }
+  };
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      try {
+        (document.body.style as any).zoom = `${zoomScale}%`;
+      } catch {}
+    }
+  }, [zoomScale]);
+
+  const handleSwitchPillar = (pillar: 'agri' | 'truck') => {
+    setMainPillar(pillar);
+    localStorage.setItem('agri_main_pillar', pillar);
+    const firstMatch = allAgriEngines.find((e) =>
+      pillar === 'truck' ? e.brand === 'chinese_truck' : e.brand !== 'chinese_truck'
+    );
+    if (firstMatch) {
+      setSelectedEngineId(firstMatch.id);
+    }
+    setSelectedBrand('all');
+    setSelectedCategory('all');
+    setActiveTab('torque');
   };
 
   // Bookmarks / Favorites saved to persistent storage
@@ -276,10 +316,45 @@ export default function App() {
     setTimeout(() => setShowSaveToast(false), 3500);
   };
 
+  // Dynamic Brand list based on active pillar
+  const currentBrandList = useMemo(() => {
+    if (mainPillar === 'truck') {
+      return [
+        { id: 'all' as BrandId, label: 'တရုတ်ဒန့်ကား အားလုံး', count: chineseTruckEngines.length },
+      ];
+    }
+    return brandList.filter((b) => b.id !== 'chinese_truck');
+  }, [mainPillar]);
+
+  // Dynamic Category list based on active pillar
+  const currentCategoryList = useMemo(() => {
+    if (mainPillar === 'truck') {
+      return [
+        { id: 'all' as MachineCategory, label: 'အားလုံး (All Trucks)' },
+        { id: 'dump_truck' as MachineCategory, label: '၆ ဘီးဒန့်ကား / တောင်ပြို (4100 / 4102)' },
+        { id: 'light_truck' as MachineCategory, label: '၄ ဘီးဒန့်ငယ် (2.8 စီးရီး)' },
+      ];
+    }
+    return [
+      { id: 'all' as MachineCategory, label: 'စက်မှုလယ်ယာ အားလုံး (All Agri)' },
+      { id: 'tractor' as MachineCategory, label: 'ထွန်စက်ကြီးများ (Tractors)' },
+      { id: 'harvester' as MachineCategory, label: 'ရိတ်ခြွေစက်များ (Harvesters)' },
+      { id: 'single_cylinder' as MachineCategory, label: 'လက်တွန်းအင်ဂျင် (1-Cyl Diesel)' },
+    ];
+  }, [mainPillar]);
+
   // Filtered engines list (favorites pinned at top if no search)
   const filteredEngines = useMemo(() => {
     return allAgriEngines
       .filter((engine) => {
+        // Pillar filter: Agri vs Chinese Dump Truck
+        if (mainPillar === 'agri' && engine.brand === 'chinese_truck') {
+          return false;
+        }
+        if (mainPillar === 'truck' && engine.brand !== 'chinese_truck') {
+          return false;
+        }
+
         // Brand filter
         if (selectedBrand !== 'all' && engine.brand !== selectedBrand) {
           return false;
@@ -307,7 +382,7 @@ export default function App() {
         const bFav = favorites.includes(b.id) ? 1 : 0;
         return bFav - aFav;
       });
-  }, [selectedBrand, selectedCategory, searchQuery, favorites]);
+  }, [mainPillar, selectedBrand, selectedCategory, searchQuery, favorites]);
 
   // Active selected engine
   const currentEngine = useMemo(() => {
@@ -447,11 +522,21 @@ export default function App() {
             {/* Share / Transfer to Other Phone Button */}
             <button
               onClick={() => setShowShareModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/50 text-teal-300 hover:bg-teal-900/60 transition text-xs font-bold shadow-inner"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-teal-950/80 border border-teal-500/50 text-teal-300 hover:bg-teal-900/60 transition text-xs font-bold shadow-inner cursor-pointer"
               title="အခြားဖုန်းသို့ ကူးယူအသုံးပြုနည်းနှင့် လင့်ခ်ဝေမျှရန်"
             >
               <Share2 className="w-3.5 h-3.5 text-teal-400" />
               <span className="hidden sm:inline">ဖုန်းကူးရန်</span>
+            </button>
+
+            {/* Tire Pressure Guide Button */}
+            <button
+              onClick={() => setShowTireModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-sky-950/80 border border-sky-500/50 text-sky-300 hover:bg-sky-900/60 transition text-xs font-bold shadow-inner cursor-pointer"
+              title="ဘီးလေပေါင် စံချိန်စံညွှန်းများ ကြည့်ရှုရန်"
+            >
+              <Disc className="w-3.5 h-3.5 text-sky-400" />
+              <span>ဘီးလေပေါင် (PSI)</span>
             </button>
 
             {/* Font Zoom Controls */}
@@ -530,16 +615,65 @@ export default function App() {
           </div>
         </div>
 
+        {/* 2.5 Master Pillars Navigation (စက်မှုလယ်ယာ vs တရုတ်ဒန့်ကားကြီးများ) */}
+        <div className="bg-slate-900/90 border-t border-slate-800 px-3 py-2">
+          <div className="max-w-7xl mx-auto grid grid-cols-2 gap-2 sm:gap-4">
+            <button
+              onClick={() => handleSwitchPillar('agri')}
+              className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-2xl border transition text-left cursor-pointer ${
+                mainPillar === 'agri'
+                  ? 'bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 border-emerald-400 text-white shadow-lg shadow-emerald-500/20'
+                  : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+              }`}
+            >
+              <span className="p-1.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <Tractor className="w-5 h-5 sm:w-6 sm:h-6" />
+              </span>
+              <div>
+                <div className="text-xs sm:text-sm font-black flex items-center gap-1.5">
+                  <span>🌾 ၁။ စက်မှုလယ်ယာ ယန္တရားများ</span>
+                </div>
+                <p className="text-[10px] text-slate-400 hidden xs:block">
+                  ထွန်စက်၊ ရိတ်ခြွေစက်၊ ၁ လုံးထိုး (Kubota, Yanmar, Ford, MF)
+                </p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleSwitchPillar('truck')}
+              className={`flex items-center justify-center gap-2 p-2.5 sm:p-3 rounded-2xl border transition text-left cursor-pointer ${
+                mainPillar === 'truck'
+                  ? 'bg-gradient-to-r from-amber-950 via-yellow-950 to-slate-900 border-amber-400 text-white shadow-lg shadow-amber-500/20'
+                  : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+              }`}
+            >
+              <span className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <HardDrive className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
+              </span>
+              <div>
+                <div className="text-xs sm:text-sm font-black flex items-center gap-1.5">
+                  <span>🚛 ၂။ တရုတ်ဒန့်ကား & ကုန်တင်ကား</span>
+                </div>
+                <p className="text-[10px] text-slate-400 hidden xs:block">
+                  4100, 4102, 2.8, WP10, WP12, Yuchai, Cummins, လေဘရိတ်
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* 3. Brand Tabs Bar */}
         <div className="border-t border-slate-800/80 bg-slate-900/60 overflow-x-auto no-scrollbar">
           <div className="max-w-7xl mx-auto px-3 py-1.5 flex items-center gap-1.5 min-w-max">
-            {brandList.map((brand) => (
+            {currentBrandList.map((brand) => (
               <button
                 key={brand.id}
                 onClick={() => setSelectedBrand(brand.id)}
                 className={`px-3 py-1 text-xs font-bold rounded-lg transition flex items-center gap-1.5 ${
                   selectedBrand === brand.id
-                    ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+                    ? mainPillar === 'truck'
+                      ? 'bg-amber-400 text-slate-950 font-black shadow-md'
+                      : 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`}
               >
@@ -566,13 +700,15 @@ export default function App() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
           {/* Machine Category Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            {categoryList.map((cat) => (
+            {currentCategoryList.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3 py-1 text-xs rounded-xl font-medium transition whitespace-nowrap border ${
                   selectedCategory === cat.id
-                    ? 'bg-teal-950 border-teal-400 text-teal-300 shadow-sm'
+                    ? mainPillar === 'truck'
+                      ? 'bg-amber-950 border-amber-400 text-amber-300 shadow-sm'
+                      : 'bg-teal-950 border-teal-400 text-teal-300 shadow-sm'
                     : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                 }`}
               >
@@ -836,7 +972,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* 6. Technical Tabs Navigation (The 5 Core Areas + Diagram + Timing + Diagnostics + Workshop Notes) */}
+          {/* 6. Technical Tabs Navigation (Dynamic for Agri vs Chinese Truck) */}
           <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl overflow-x-auto no-scrollbar shadow-lg">
             <button
               onClick={() => setActiveTab('torque')}
@@ -883,7 +1019,7 @@ export default function App() {
               }`}
             >
               <Gauge className="w-4 h-4" />
-              <span>၄။ ကင်းလွတ်ခွာ (Clearance)</span>
+              <span>၄။ ဘားချိန်နည်း & ကင်းလွတ်ခွာ (Valve & Clearance)</span>
             </button>
 
             <button
@@ -898,17 +1034,75 @@ export default function App() {
               <span>၅။ နိုဇယ်/မီးချိန် (Fuel)</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('dump_hydraulics')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-                activeTab === 'dump_hydraulics'
-                  ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Tractor className="w-4 h-4" />
-              <span>၆။ ဒန့်ဟိုက်ဒရောလစ် & လေကွဲ</span>
-            </button>
+            {/* Truck-only tabs */}
+            {mainPillar === 'truck' && (
+              <>
+                <button
+                  onClick={() => setActiveTab('dump_hydraulics')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+                    activeTab === 'dump_hydraulics'
+                      ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Tractor className="w-4 h-4" />
+                  <span>၆။ ဒန့်ဟိုက်ဒရောလစ် & လေကွဲ</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('air_brake')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+                    activeTab === 'air_brake'
+                      ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Wind className="w-4 h-4" />
+                  <span>၇။ လေဘရိတ်စနစ် (Air Brake)</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('pto_clutch')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+                    activeTab === 'pto_clutch'
+                      ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Cog className="w-4 h-4" />
+                  <span>၈။ ဒန့် PTO & ကလပ်ဘူစတာ</span>
+                </button>
+              </>
+            )}
+
+            {/* Agri-only tabs */}
+            {mainPillar === 'agri' && (
+              <>
+                <button
+                  onClick={() => setActiveTab('pto_clutch')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+                    activeTab === 'pto_clutch'
+                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Cog className="w-4 h-4" />
+                  <span>၆။ ထွန်စက် PTO & ၂ ဆင့်ကလပ်</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('protips')}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
+                    activeTab === 'protips'
+                      ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/20'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  <Lightbulb className="w-4 h-4" />
+                  <span>၇။ လက်တွေ့ Tips</span>
+                </button>
+              </>
+            )}
 
             <button
               onClick={() => setActiveTab('diagnostics')}
@@ -919,7 +1113,7 @@ export default function App() {
               }`}
             >
               <Activity className="w-4 h-4" />
-              <span>၇။ ချို့ယွင်းချက်ရှာ (Diagnostics)</span>
+              <span>ချို့ယွင်းချက်ရှာ</span>
             </button>
 
             <button
@@ -931,19 +1125,7 @@ export default function App() {
               }`}
             >
               <Droplets className="w-4 h-4" />
-              <span>၇။ အရည်ပမာဏ (Fluids)</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('protips')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-                activeTab === 'protips'
-                  ? 'bg-emerald-400 text-slate-950 shadow-md shadow-emerald-400/20'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              <Lightbulb className="w-4 h-4" />
-              <span>၈။ လက်တွေ့ Tips</span>
+              <span>အရည်ပမာဏ</span>
             </button>
 
             <button
@@ -955,7 +1137,7 @@ export default function App() {
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>၉။ ဝပ်ရှော့မှတ်စု (Notes)</span>
+              <span>ဝပ်ရှော့မှတ်စု</span>
             </button>
           </div>
 
@@ -1052,9 +1234,12 @@ export default function App() {
               <TimingGearsTab engine={currentEngine} />
             )}
 
-            {/* TAB 4: ENGINE CLEARANCES & TOLERANCES */}
+            {/* TAB 4: ENGINE CLEARANCES & VALVE ADJUSTMENT GUIDE */}
             {activeTab === 'clearances' && (
-              <ClearancesTab clearances={currentEngine.clearances} />
+              <ClearancesTab
+                clearances={currentEngine.clearances}
+                engine={currentEngine}
+              />
             )}
 
             {/* TAB 5: FUEL SYSTEM & TIMING */}
@@ -1065,6 +1250,16 @@ export default function App() {
             {/* TAB 6: DUMP HYDRAULICS & FAST SPLITTER */}
             {activeTab === 'dump_hydraulics' && (
               <DumpTruckHydraulicsTab currentEngine={currentEngine} />
+            )}
+
+            {/* TAB: AIR BRAKE SYSTEM (TRUCK ONLY) */}
+            {activeTab === 'air_brake' && (
+              <AirBrakeTab />
+            )}
+
+            {/* TAB: PTO & CLUTCH (BOTH TRUCK & AGRI) */}
+            {activeTab === 'pto_clutch' && (
+              <PtoClutchTab />
             )}
 
             {/* TAB 7: DIAGNOSTICS & TROUBLESHOOTING */}
@@ -1576,6 +1771,12 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* 13.5 Tire Pressure Guide Modal */}
+      <TirePressureModal
+        isOpen={showTireModal}
+        onClose={() => setShowTireModal(false)}
+      />
 
       {/* 14. Floating Sticky Zoom Controller for Quick Access Anywhere */}
       <aside aria-label="Zoom Controls" className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 bg-slate-950/95 border-2 border-amber-500/50 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-2xl">
