@@ -1,6 +1,6 @@
 {
   "appId": "com.greatstar.enginespec",
-  "appName": "GreatStar Engine Spec",
+  "appName": "GreatStar Engine Guide",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

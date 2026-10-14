@@ -63,6 +63,11 @@ jobs:
           }
           EOF
 
+      - name: Configure Android App Label Name
+        run: |
+          sed -i 's/<string name="app_name">.*<\/string>/<string name="app_name">GreatStar Engine Guide<\/string>/g' android/app/src/main/res/values/strings.xml || true
+          sed -i 's/<string name="title_activity_main">.*<\/string>/<string name="title_activity_main">GreatStar Engine Guide<\/string>/g' android/app/src/main/res/values/strings.xml || true
+
       - name: Install GreatStar Custom App Icons
         run: |
           if [ -f "public/greatstar_logo.jpg" ]; then
@@ -91,5 +96,5 @@ jobs:
       - name: Upload GreatStar Android APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GreatStar-ZNW-Engine-Spec-APK
+          name: GreatStar-Engine-Guide-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
