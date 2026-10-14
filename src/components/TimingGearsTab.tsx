@@ -27,6 +27,35 @@ import {
   Sparkles
 } from 'lucide-react';
 
+// Genuine Gear Train Diagram & Blueprint Image Imports (Packaged by Vite for 100% offline APK support)
+import kubotaMultiCylinderManualImg from '../assets/images/kubota_gear_train_1791877950744.jpg';
+import kubotaBlueprintImg from '../assets/images/kubota_timing_manual_1791877951833.jpg';
+import kubotaSingleCylinderManualImg from '../assets/images/kubota_rt_manual_1791877974606.jpg';
+
+import yanmarMultiCylinderManualImg from '../assets/images/yanmar_gear_train_1791879793529.jpg';
+import yanmarBlueprintImg from '../assets/images/yanmar_timing_blueprint_1791879795442.jpg';
+import yanmarSingleCylinderManualImg from '../assets/images/yanmar_tf_manual_1791879793845.jpg';
+
+import mfPerkinsManualImg from '../assets/images/mf_perkins_gear_train_1791880863059.jpg';
+import mfPerkinsBlueprintImg from '../assets/images/mf_perkins_blueprint_1791880864125.jpg';
+
+import sonalikaManualImg from '../assets/images/sonalika_gear_train_1791880863455.jpg';
+
+import jdManualImg from '../assets/images/jd_gear_train_1791886594049.jpg';
+import jdBlueprintImg from '../assets/images/jd_gear_blueprint_1791886619537.jpg';
+
+import newHollandManualImg from '../assets/images/new_holland_gear_train_1791882026762.jpg';
+import newHollandBlueprintImg from '../assets/images/new_holland_blueprint_1791882027906.jpg';
+
+import ytoManualImg from '../assets/images/yto_gear_train_1791883754373.jpg';
+import ytoBlueprintImg from '../assets/images/yto_gear_blueprint_1791883794449.jpg';
+import lovolManualImg from '../assets/images/lovol_gear_train_1791883770901.jpg';
+
+import weichaiManualImg from '../assets/images/weichai_wp10_geartrain_1791891333340.jpg';
+import cumminsManualImg from '../assets/images/cummins_geartrain_1791891361340.jpg';
+import yuchaiManualImg from '../assets/images/yuchai_geartrain_1791891412447.jpg';
+import yunneiManualImg from '../assets/images/yunnei_4100_geartrain_1791891385366.jpg';
+
 interface Props {
   engine: AgriEngine;
 }
@@ -167,41 +196,7 @@ export const TimingGearsTab: React.FC<Props> = ({ engine }) => {
     }
   }, [engine.id, hasFactoryManual]);
 
-  // Kubota Genuine Factory Workshop Manual (WSM) Images
-  const kubotaMultiCylinderManualImg = '/src/assets/images/kubota_gear_train_1791877950744.jpg';
-  const kubotaBlueprintImg = '/src/assets/images/kubota_timing_manual_1791877951833.jpg';
-  const kubotaSingleCylinderManualImg = '/src/assets/images/kubota_rt_manual_1791877974606.jpg';
-
-  // Yanmar Genuine Factory Service Manual Images
-  const yanmarMultiCylinderManualImg = '/src/assets/images/yanmar_gear_train_1791879793529.jpg';
-  const yanmarBlueprintImg = '/src/assets/images/yanmar_timing_blueprint_1791879795442.jpg';
-  const yanmarSingleCylinderManualImg = '/src/assets/images/yanmar_tf_manual_1791879793845.jpg';
-
-  // Massey Ferguson Perkins Genuine Service Manual & Blueprint Images
-  const mfPerkinsManualImg = '/src/assets/images/mf_perkins_gear_train_1791880863059.jpg';
-  const mfPerkinsBlueprintImg = '/src/assets/images/mf_perkins_blueprint_1791880864125.jpg';
-
-  // Sonalika ITL Genuine Service Manual Image
-  const sonalikaManualImg = '/src/assets/images/sonalika_gear_train_1791880863455.jpg';
-
-  // John Deere Genuine Factory Service Manual & Blueprint Images
-  const jdManualImg = '/src/assets/images/jd_gear_train_1791886594049.jpg';
-  const jdBlueprintImg = '/src/assets/images/jd_gear_blueprint_1791886619537.jpg';
-
-  // New Holland & Ford Genuine Service Manual & Blueprint Images
-  const newHollandManualImg = '/src/assets/images/new_holland_gear_train_1791882026762.jpg';
-  const newHollandBlueprintImg = '/src/assets/images/new_holland_blueprint_1791882027906.jpg';
-
-  // YTO (Dongfanghong) & Lovol Genuine Service Manual & Blueprint Images
-  const ytoManualImg = '/src/assets/images/yto_gear_train_1791883754373.jpg';
-  const ytoBlueprintImg = '/src/assets/images/yto_gear_blueprint_1791883794449.jpg';
-  const lovolManualImg = '/src/assets/images/lovol_gear_train_1791883770901.jpg';
-
-  // Chinese Dump Truck Genuine Service Manual & Blueprint Images
-  const weichaiManualImg = '/src/assets/images/weichai_wp10_geartrain_1791891333340.jpg';
-  const cumminsManualImg = '/src/assets/images/cummins_geartrain_1791891361340.jpg';
-  const yuchaiManualImg = '/src/assets/images/yuchai_geartrain_1791891412447.jpg';
-  const yunneiManualImg = '/src/assets/images/yunnei_4100_geartrain_1791891385366.jpg';
+  // Images are imported at the top level for 100% offline bundled APK support
 
   const factoryManualImgSrc = isKubota
     ? (engine.category === 'single_cylinder' ? kubotaSingleCylinderManualImg : kubotaMultiCylinderManualImg)
