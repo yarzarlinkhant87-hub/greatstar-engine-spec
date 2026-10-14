@@ -50,7 +50,6 @@ import {
 } from './types/engine';
 import { allAgriEngines, brandList, categoryList } from './data/agriEngines';
 import { chineseTruckEngines } from './data/chineseTruckData';
-import { InstallPromptBanner } from './components/InstallPromptBanner';
 import { HeadBoltSequenceView } from './components/HeadBoltSequenceView';
 import { ClearancesTab } from './components/ClearancesTab';
 import { FuelSystemTab } from './components/FuelSystemTab';
@@ -101,30 +100,14 @@ export default function App() {
     return (localStorage.getItem('agri_last_zoom') as ZoomLevel) || 'large';
   });
 
-  // Numeric zoom percentage (85% to 220%) with persistence
-  const [zoomScale, setZoomScale] = useState<number>(() => {
-    const saved = localStorage.getItem('agri_zoom_scale');
-    return saved ? Number(saved) : 120;
-  });
-
-  const handleZoomChange = (newScale: number) => {
-    const clamped = Math.min(220, Math.max(85, newScale));
-    setZoomScale(clamped);
-    localStorage.setItem('agri_zoom_scale', String(clamped));
-    if (typeof document !== 'undefined') {
-      try {
-        (document.body.style as any).zoom = `${clamped}%`;
-      } catch {}
-    }
-  };
-
+  // Reset any browser body zoom so Chrome mobile dismisses its floating zoom widget
   useEffect(() => {
     if (typeof document !== 'undefined') {
       try {
-        (document.body.style as any).zoom = `${zoomScale}%`;
+        (document.body.style as any).zoom = '';
       } catch {}
     }
-  }, [zoomScale]);
+  }, []);
 
   const handleSwitchPillar = (pillar: 'agri' | 'truck') => {
     setMainPillar(pillar);
@@ -163,7 +146,6 @@ export default function App() {
   const [currentNoteInput, setCurrentNoteInput] = useState('');
   const [noteSavedFeedback, setNoteSavedFeedback] = useState(false);
   const [showMemoryModal, setShowMemoryModal] = useState(false);
-  const [showReloadGuideModal, setShowReloadGuideModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
@@ -211,20 +193,6 @@ export default function App() {
     } else {
       handleCopyShareLink();
     }
-  };
-
-  const handleForceReload = async () => {
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
-    }
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
-      }
-    }
-    window.location.href = window.location.origin + '/?r=' + Date.now();
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -454,9 +422,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950 pb-16">
-      {/* 1. PWA Install Prompt Banner */}
-      <InstallPromptBanner />
-
       {/* 2. Top Header Bar */}
       <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-3">
@@ -497,7 +462,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Controls: Memory Status, Reload Guide, Font Zoom & Unit Toggle */}
+          {/* Controls: Memory Status, Font Zoom & Unit Toggle */}
           <div className="flex items-center gap-2">
             {/* Memory & Save Status Pill Button */}
             <button
@@ -507,16 +472,6 @@ export default function App() {
             >
               <HardDrive className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
               <span className="hidden md:inline">မှတ်ဉာဏ်ပြည့်</span>
-            </button>
-
-            {/* Chrome Reload & Logo Fix Button */}
-            <button
-              onClick={() => setShowReloadGuideModal(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-950/80 border border-amber-500/50 text-amber-300 hover:bg-amber-900/60 transition text-xs font-bold shadow-inner"
-              title="Chrome Reload လုပ်နည်းနှင့် Logo ပြင်နည်း"
-            >
-              <RotateCw className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline">Chrome Reload</span>
             </button>
 
             {/* Share / Transfer to Other Phone Button */}
@@ -634,7 +589,7 @@ export default function App() {
                   <span>🌾 ၁။ စက်မှုလယ်ယာ ယန္တရားများ</span>
                 </div>
                 <p className="text-[10px] text-slate-400 hidden xs:block">
-                  ထွန်စက်၊ ရိတ်ခြွေစက်၊ ၁ လုံးထိုး (Kubota, Yanmar, Ford, MF)
+                  ထွန်စက်၊ ရိတ်ခြွေစက် (Kubota, Yanmar, YTO, Lovol, Ford, MF)
                 </p>
               </div>
             </button>
@@ -668,7 +623,19 @@ export default function App() {
             {currentBrandList.map((brand) => (
               <button
                 key={brand.id}
-                onClick={() => setSelectedBrand(brand.id)}
+                onClick={() => {
+                  setSelectedBrand(brand.id);
+                  const match = allAgriEngines.find((e) => {
+                    if (mainPillar === 'agri' && e.brand === 'chinese_truck') return false;
+                    if (mainPillar === 'truck' && e.brand !== 'chinese_truck') return false;
+                    if (brand.id !== 'all' && e.brand !== brand.id) return false;
+                    if (selectedCategory !== 'all' && e.category !== selectedCategory) return false;
+                    return true;
+                  });
+                  if (match) {
+                    setSelectedEngineId(match.id);
+                  }
+                }}
                 className={`px-3 py-1 text-xs font-bold rounded-lg transition flex items-center gap-1.5 ${
                   selectedBrand === brand.id
                     ? mainPillar === 'truck'
@@ -703,7 +670,19 @@ export default function App() {
             {currentCategoryList.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  const match = allAgriEngines.find((e) => {
+                    if (mainPillar === 'agri' && e.brand === 'chinese_truck') return false;
+                    if (mainPillar === 'truck' && e.brand !== 'chinese_truck') return false;
+                    if (selectedBrand !== 'all' && e.brand !== selectedBrand) return false;
+                    if (cat.id !== 'all' && e.category !== cat.id) return false;
+                    return true;
+                  });
+                  if (match) {
+                    setSelectedEngineId(match.id);
+                  }
+                }}
                 className={`px-3 py-1 text-xs rounded-xl font-medium transition whitespace-nowrap border ${
                   selectedCategory === cat.id
                     ? mainPillar === 'truck'
@@ -784,9 +763,16 @@ export default function App() {
                     )}
 
                     <div className="flex items-start justify-between gap-1 mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                        {engine.brand.toUpperCase()}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                          {engine.brand.toUpperCase()}
+                        </span>
+                        {isSelected && (
+                          <span className="px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9px] font-black uppercase tracking-wider">
+                            ✓ ရွေးထားသည်
+                          </span>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={(e) => toggleFavorite(engine.id, e)}
@@ -811,9 +797,9 @@ export default function App() {
                       {engine.engineCode} • {engine.cylinders} Cyl • {engine.displacementCc}cc
                     </p>
 
-                    <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500 pt-1.5 border-t border-slate-800/60">
-                      <span>{engine.categoryLabel}</span>
-                      <span className="text-amber-400 font-mono font-bold">
+                    <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-slate-800/60">
+                      <span className="text-slate-400">{engine.categoryLabel}</span>
+                      <span className="text-amber-300 font-mono font-black bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
                         ခေါင်းပေါင်: {engine.torqueSpecs[0]?.nm} Nm
                       </span>
                     </div>
@@ -840,7 +826,7 @@ export default function App() {
                 </button>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="px-2.5 py-0.5 text-xs font-black rounded-lg bg-emerald-500 text-slate-950 uppercase tracking-wide">
                       {currentEngine.brandLabel}
                     </span>
@@ -871,6 +857,16 @@ export default function App() {
 
               {/* Engine Quick Specs Badge Grid */}
               <div className="flex flex-wrap gap-2 self-start">
+                {/* 1. Highlighted Head Torque Card */}
+                <div className="px-3 py-1.5 rounded-xl bg-gradient-to-b from-amber-950 to-slate-950 border border-amber-500/60 text-center shadow-lg">
+                  <span className="text-[10px] text-amber-300 block uppercase font-black">ဆလင်ဒါခေါင်းဆွဲပေါင်</span>
+                  <span className="text-base font-black text-amber-300 font-mono">
+                    {currentEngine.torqueSpecs[0]?.nm} Nm
+                  </span>
+                  <span className="text-[10px] text-amber-400/80 block font-mono font-bold">
+                    ({currentEngine.torqueSpecs[0]?.ftlb} Ft-lb)
+                  </span>
+                </div>
                 <div className="px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 text-center">
                   <span className="text-[10px] text-slate-400 block uppercase">မြင်းကောင်ရေ</span>
                   <span className="text-base font-black text-amber-300 font-mono">
@@ -914,63 +910,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Zoom & Font Size Quick Controller Bar for Workshop Mechanics */}
-          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border border-amber-500/40 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-lg">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                <ZoomIn className="w-4 h-4" />
-              </span>
-              <div>
-                <span className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
-                  <span>စာလုံး & ဇယား အရွယ်အစား (Zoom):</span>
-                  <span className="text-amber-400 font-mono font-black text-sm">{zoomScale}%</span>
-                </span>
-                <p className="text-[10px] text-slate-400">
-                  စခရင်ပေါ်တွင် လက် ၂ ချောင်းဖြင့်လည်း ဆွဲချဲ့ (Pinch to Zoom) နိုင်ပါသည်
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-center gap-1 bg-slate-950/90 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={() => handleZoomChange(zoomScale - 15)}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs active:scale-95 transition"
-                title="စာလုံး ချုံ့မည်"
-              >
-                <ZoomOut className="w-3.5 h-3.5 inline mr-1" />-
-              </button>
-
-              {[100, 120, 140, 160, 180].map((scale) => (
-                <button
-                  key={scale}
-                  onClick={() => handleZoomChange(scale)}
-                  className={`px-2 py-1 rounded-lg text-xs font-bold transition ${
-                    zoomScale === scale
-                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black shadow-md'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  {scale}%
-                </button>
-              ))}
-
-              <button
-                onClick={() => handleZoomChange(zoomScale + 15)}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs active:scale-95 transition"
-                title="စာလုံး ချဲ့မည်"
-              >
-                +<ZoomIn className="w-3.5 h-3.5 inline ml-1" />
-              </button>
-
-              <button
-                onClick={() => handleZoomChange(100)}
-                className="text-[10px] px-2 py-1 rounded-lg bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 ml-1"
-                title="မူလ ၁၀၀% ပြန်ထားမည်"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
 
           {/* 6. Technical Tabs Navigation (Dynamic for Agri vs Chinese Truck) */}
           <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl overflow-x-auto no-scrollbar shadow-lg">
@@ -1141,8 +1081,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* 7. Active Tab View Content (Scales with zoomScale) */}
-          <div className="transition-all duration-200 origin-top" style={{ zoom: `${zoomScale}%` }}>
+          {/* 7. Active Tab View Content */}
+          <div className="transition-all duration-200 origin-top">
             {/* TAB 1: TORQUE SPECIFICATIONS TABLE */}
             {activeTab === 'torque' && (
               <div className="space-y-3">
@@ -1447,110 +1387,8 @@ export default function App() {
         </div>
       )}
 
-      {/* 11. Chrome Reload & Logo Fix Guide Modal */}
-      {showReloadGuideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
-          <div className="w-full max-w-md rounded-3xl bg-slate-900 border border-amber-500/50 p-5 sm:p-6 shadow-2xl text-slate-100 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="p-2 rounded-xl bg-amber-400/20 text-amber-400 border border-amber-400/30">
-                  <RotateCw className="w-5 h-5 animate-spin-slow" />
-                </span>
-                <div>
-                  <h3 className="font-black text-sm sm:text-base text-amber-300">
-                    Chrome Reload & Logo ပြင်ဆင်နည်း
-                  </h3>
-                  <p className="text-[11px] text-slate-400">
-                    အဆင့် ၃ ဆင့်ဖြင့် ရွှေရောင် Logo အစစ် ဖုန်းပေါ်တင်ပါ
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowReloadGuideModal(false)}
-                className="text-slate-400 hover:text-white text-lg p-1"
-              >
-                ✕
-              </button>
-            </div>
 
-            <div className="space-y-3.5 text-xs text-slate-300 mb-5">
-              {/* Quick Auto-Reload Button */}
-              <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-400/50 text-amber-200 shadow-inner">
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="font-bold text-xs flex items-center gap-1.5 text-amber-300">
-                    <RotateCw className="w-4 h-4 text-amber-400" />
-                    Chrome Auto-Reload ခလုတ်:
-                  </span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-mono font-bold">
-                    အလွယ်ဆုံး
-                  </span>
-                </div>
-                <p className="text-[11px] text-amber-200/90 leading-relaxed mb-3">
-                  အောက်ပါခလုတ်ကို နှိပ်လိုက်ပါက Chrome Cache အဟောင်းများကို အလိုအလျောက် ရှင်းထုတ်ပြီး အက်ပ်ကို အသစ်စက်စက် ချက်ချင်း Reload လုပ်ပေးပါမည်။
-                </p>
-                <button
-                  onClick={handleForceReload}
-                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs transition shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <RotateCw className="w-4 h-4 animate-spin-slow" />
-                  <span>🔄 ယခုချက်ချင်း Cache ရှင်းပြီး Reload လုပ်မည်</span>
-                </button>
-              </div>
 
-              {/* Step 1: Hand Reload in Chrome */}
-              <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
-                <div className="flex items-center gap-2 text-slate-100 font-bold">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                    ၁
-                  </span>
-                  <span>Chrome တွင် လက်ဖြင့် Reload ပြုလုပ်နည်း (၂ မျိုး):</span>
-                </div>
-                <ul className="pl-7 space-y-1.5 text-[11px] text-slate-300 list-disc">
-                  <li>
-                    <strong>ဆွဲချပြီး Reload လုပ်ခြင်း:</strong> ဖုန်းမျက်နှာပြင် အပေါ်ဆုံးသို့ ရောက်အောင်သွားပြီး လက်ဖြင့် အောက်ဘက်သို့ အသာဆွဲချလိုက်ပါ (Pull down)။ အပေါ်တွင် လည်နေသော မြှားဝိုင်း (🔄) ပေါ်လာပြီး reload ဖြစ်သွားပါမည်။
-                  </li>
-                  <li>
-                    <strong>ခလုတ်ဖြင့် Reload လုပ်ခြင်း:</strong> Chrome ညာဘက်အပေါ်ထောင့်ရှိ <strong>အစက် ၃ စက် (⋮)</strong> ကို နှိပ်ပါ ➔ အပေါ်ဆုံးရှိ <strong>မြှားဝိုင်း သင်္ကေတ (🔄)</strong> ကို နှိပ်ပါ။
-                  </li>
-                </ul>
-              </div>
-
-              {/* Step 2: Delete Old 'R' Icon */}
-              <div className="p-3 rounded-2xl bg-red-950/30 border border-red-500/40 space-y-2 text-red-200">
-                <div className="flex items-center gap-2 font-bold text-red-300">
-                  <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                    ၂
-                  </span>
-                  <span>ဖုန်း Screen ပေါ်ရှိ 'R' တံဆိပ် အဟောင်းကို အရင်ဖျက်ပါ:</span>
-                </div>
-                <p className="pl-7 text-[11px] text-red-200/90 leading-relaxed">
-                  ဖုန်းမျက်နှာပြင် (Home screen) ပေါ်ရှိ 'R' တံဆိပ်အဟောင်းကို လက်ဖြင့် ၂ စက္ကန့် ဖိနှိပ်ထားပါ ➔ <strong>"Remove"</strong> သို့မဟုတ် အမှိုက်ပုံးထဲသို့ ဆွဲထည့်ပြီး အဟောင်းကို အရင်ဆုံး ဖျက်ထုတ်ပေးရပါမည်။ (အဟောင်းမဖျက်ပါက ဖုန်းက အသစ်ကို နေရာမပေးတတ်ပါ)
-                </p>
-              </div>
-
-              {/* Step 3: Install App with Golden Logo */}
-              <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 space-y-2 text-emerald-200">
-                <div className="flex items-center gap-2 font-bold text-emerald-300">
-                  <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                    ၃
-                  </span>
-                  <span>ရွှေရောင် Logo အစစ်ဖြင့် အသစ်ထည့်သွင်းပါ:</span>
-                </div>
-                <p className="pl-7 text-[11px] text-emerald-200/90 leading-relaxed">
-                  Chrome သို့ ပြန်သွားပြီး ညာဘက်ထိပ် <strong>အစက် ၃ စက် (⋮)</strong> ကို နှိပ်ပါ ➔ <strong>"Install app" (အက်ပ် ထည့်သွင်းပါ)</strong> သို့မဟုတ် <strong>"Add to Home screen" (ပင်မစခရင်သို့ ထည့်ရန်)</strong> ကို ရွေးနှိပ်ပါ။ ထိုအခါ <strong>ရွှေရောင်စက်မှုလယ်ယာ Logo</strong> ဖြင့် ဖုန်းစခရင်ပေါ်သို့ တန်းရောက်သွားပါမည်။
-                </p>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowReloadGuideModal(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition"
-            >
-              နားလည်ပါပြီ (Close)
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* 12. Share & Transfer to Other Phone Modal */}
       {showShareModal && (
@@ -1664,7 +1502,7 @@ export default function App() {
                     <span>နည်းလမ်း (၁) - အင်တာနက်မလိုဘဲ ဖုန်းချင်း APK တိုက်ရိုက်ကူးနည်း:</span>
                   </span>
                   <p className="text-[11px] text-slate-300 leading-relaxed">
-                    ဆရာ့ဖုန်းထဲရှိ <strong>GreatStar Engine Spec APK (app-debug.apk)</strong> ဖိုင်လေးကို <strong>Bluetooth, Zapya, ShareMe, Viber သို့မဟုတ် Telegram</strong> ဖြင့် လုပ်ငန်းတူ သူငယ်ချင်းထံ တိုက်ရိုက် ပို့ပေးလိုက်ပါ။ သူတို့ဖုန်းတွင် "Install anyway" ကို နှိပ်လိုက်ရုံဖြင့် အင်တာနက် လုံးဝမလိုဘဲ တန်းသုံးနိုင်ပါပြီ။
+                    ဆရာ့ဖုန်းထဲရှိ <strong>GreatStar Engine Guide APK (app-debug.apk)</strong> ဖိုင်လေးကို <strong>Bluetooth, Zapya, ShareMe, Viber သို့မဟုတ် Telegram</strong> ဖြင့် လုပ်ငန်းတူ သူငယ်ချင်းထံ တိုက်ရိုက် ပို့ပေးလိုက်ပါ။ သူတို့ဖုန်းတွင် "Install anyway" ကို နှိပ်လိုက်ရုံဖြင့် အင်တာနက် လုံးဝမလိုဘဲ တန်းသုံးနိုင်ပါပြီ။
                   </p>
                 </div>
 
@@ -1682,7 +1520,7 @@ export default function App() {
                       အပေါ်ဆုံးရှိ <strong>"အက်ပ်ထည့်သွင်းမည် (Install App)"</strong> ခလုတ်ကို နှိပ်ပါ (သို့မဟုတ် Chrome ထိပ် <strong>အစက် ၃ စက် (⋮) ➔ "Add to Home screen"</strong> နှိပ်ပါ)။
                     </li>
                     <li>
-                      ထိုအခါ အခြားဖုန်းပေါ်တွင် <strong>GreatStar.z.n.w ရွှေရောင် Logo</strong> ဖြင့် အက်ပ်အဖြစ် အမြဲတမ်း ရောက်ရှိသွားပါပြီ!
+                      ထိုအခါ ဖုန်း Screen ပေါ်တွင် <strong>GreatStar Engine Guide</strong> ဟူသောအမည်နှင့်အတူ ရွှေရောင် Logo ဖြင့် အမြဲတမ်း ရောက်ရှိသွားပါပြီ!
                     </li>
                   </ol>
                 </div>
@@ -1756,7 +1594,7 @@ export default function App() {
               </div>
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">အမှတ်သင်္ကေတ</span>
-                <span className="font-bold text-slate-200">Timing Gear & Torque Wrench</span>
+                <span className="font-bold text-amber-300">Piston • Pinion Gear • Torque Gauge</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-950/80 border border-slate-800">
                 <span className="text-slate-400 block text-[10px] uppercase font-bold">လိုင်းအခြေအနေ</span>
@@ -1781,35 +1619,7 @@ export default function App() {
         onClose={() => setShowTireModal(false)}
       />
 
-      {/* 14. Floating Sticky Zoom Controller for Quick Access Anywhere */}
-      <aside aria-label="Zoom Controls" className="fixed bottom-4 right-4 z-40 flex items-center gap-1.5 bg-slate-950/95 border-2 border-amber-500/50 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-2xl">
-        <button
-          onClick={() => handleZoomChange(zoomScale - 15)}
-          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-90 transition"
-          title="Zoom Out (ချုံ့မည်)"
-        >
-          <ZoomOut className="w-4 h-4 text-slate-300" />
-        </button>
 
-        <button
-          onClick={() => {
-            const nextScale = zoomScale >= 180 ? 100 : zoomScale + 20;
-            handleZoomChange(nextScale);
-          }}
-          className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-black text-xs font-mono shadow-md active:scale-95 transition"
-          title="နှိပ်၍ ချဲ့ကြည့်ပါ (Tap to cycle zoom)"
-        >
-          🔍 {zoomScale}%
-        </button>
-
-        <button
-          onClick={() => handleZoomChange(zoomScale + 15)}
-          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-90 transition"
-          title="Zoom In (ချဲ့မည်)"
-        >
-          <ZoomIn className="w-4 h-4 text-amber-400" />
-        </button>
-      </aside>
     </div>
   );
 }

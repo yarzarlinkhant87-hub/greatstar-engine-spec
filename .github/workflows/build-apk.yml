@@ -35,6 +35,34 @@ jobs:
           npx cap add android
           npx cap copy android
 
+      - name: Enable Android WebView Multi-Touch Pinch Zoom Support
+        run: |
+          mkdir -p android/app/src/main/java/com/greatstar/enginespec
+          cat << 'EOF' > android/app/src/main/java/com/greatstar/enginespec/MainActivity.java
+          package com.greatstar.enginespec;
+
+          import android.os.Bundle;
+          import android.webkit.WebSettings;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  try {
+                      if (this.bridge != null && this.bridge.getWebView() != null) {
+                          WebSettings webSettings = this.bridge.getWebView().getSettings();
+                          webSettings.setSupportZoom(true);
+                          webSettings.setBuiltInZoomControls(true);
+                          webSettings.setDisplayZoomControls(false);
+                      }
+                  } catch (Exception e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+          EOF
+
       - name: Install GreatStar Custom App Icons
         run: |
           if [ -f "public/greatstar_logo.jpg" ]; then

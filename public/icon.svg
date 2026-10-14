@@ -1,46 +1,148 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Metallic Gold Gradient -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="25%" stop-color="#facc15" />
+      <stop offset="50%" stop-color="#ca8a04" />
+      <stop offset="75%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#854d0e" />
+    </linearGradient>
+
+    <!-- Chrome Gradient -->
+    <linearGradient id="chromeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="30%" stop-color="#cbd5e1" />
+      <stop offset="60%" stop-color="#64748b" />
+      <stop offset="85%" stop-color="#94a3b8" />
+      <stop offset="100%" stop-color="#f8fafc" />
+    </linearGradient>
+
+    <!-- Needle Gradient -->
+    <linearGradient id="needleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="60%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+
+    <!-- Background Radial Gradient -->
+    <radialGradient id="slateRadial" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#0f172a" />
-      <stop offset="50%" stop-color="#064e3b" />
-      <stop offset="100%" stop-color="#022c22" />
-    </linearGradient>
-    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fde047" />
-      <stop offset="50%" stop-color="#eab308" />
-      <stop offset="100%" stop-color="#ca8a04" />
-    </linearGradient>
-    <linearGradient id="emerald" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#34d399" />
-      <stop offset="100%" stop-color="#059669" />
-    </linearGradient>
+      <stop offset="70%" stop-color="#020617" />
+      <stop offset="100%" stop-color="#000000" />
+    </radialGradient>
+
+    <!-- Curved Text Paths for 512x512 -->
+    <!-- Top arc: R = 179 -->
+    <path id="textPathTop" d="M 77,256 A 179,179 0 0,1 435,256" fill="none" />
+    <!-- Bottom arc: R = 205 (sweep=0 for upright text) -->
+    <path id="textPathBottom" d="M 51,256 A 205,205 0 0,0 461,256" fill="none" />
   </defs>
-  <!-- Background Badge -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)" />
-  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="url(#gold)" stroke-width="6" opacity="0.6" />
-  
-  <!-- Tractor / Gear Graphic -->
-  <g transform="translate(256, 210) scale(1.15)">
-    <!-- Engine Gear Ring -->
-    <circle r="110" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="16 12" opacity="0.4" />
-    <!-- Center Wrench & Piston Emblem -->
-    <path d="M-60 40 L-20 0 L-40 -20 L-20 -40 L0 -20 L40 -60 L60 -40 L20 0 L40 20 L20 40 L0 20 L-40 60 Z" fill="url(#gold)" opacity="0.15" />
-    
-    <!-- Stylized Tractor Icon -->
-    <path d="M-70,50 C-70,25 -50,5 -25,5 C0,5 20,25 20,50" fill="none" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="-25" cy="50" r="32" fill="#042f2e" stroke="url(#gold)" stroke-width="10"/>
-    <circle cx="55" cy="55" r="20" fill="#042f2e" stroke="url(#gold)" stroke-width="8"/>
-    
-    <!-- Tractor Body & Hood -->
-    <path d="M-25,5 L-25,-35 L20,-35 L30,-15 L65,-15 L70,30 L55,30" fill="none" stroke="url(#emerald)" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
-    <!-- Exhaust Stack -->
-    <path d="M50,-15 L50,-55 L55,-55" fill="none" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
-    <!-- Steering / Cabin -->
-    <path d="M-15,-35 L-5,-60 L5,-60" fill="none" stroke="#fde047" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="#020617" />
+  <circle cx="256" cy="256" r="248" fill="url(#slateRadial)" stroke="url(#goldGrad)" stroke-width="6" />
+
+  <!-- 16 Outer Timing Gear Teeth -->
+  <g id="gearTeeth">
+    <!-- Rotated teeth -->
+    <g transform="rotate(0 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(22.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(45 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(67.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(90 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(112.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(135 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(157.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(180 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(202.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(225 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(247.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(270 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(292.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(315 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
+    <g transform="rotate(337.5 256 256)"><rect x="243" y="3" width="26" height="18" rx="4" fill="url(#goldGrad)" stroke="#78350f" stroke-width="2" /></g>
   </g>
 
-  <!-- Typography -->
-  <text x="256" y="380" text-anchor="middle" font-family="system-ui, sans-serif" font-size="42" font-weight="900" fill="url(#gold)" letter-spacing="2">AGRI-MASTER</text>
-  <text x="256" y="425" text-anchor="middle" font-family="system-ui, sans-serif" font-size="24" font-weight="700" fill="#a7f3d0" letter-spacing="4">စက်မှုလယ်ယာဆွဲပေါင်</text>
-  <text x="256" y="460" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#6ee7b7">KUBOTA • YANMAR • FORD • JD</text>
+  <!-- Micrometer Ring -->
+  <circle cx="256" cy="256" r="224" stroke="url(#goldGrad)" stroke-width="2.5" stroke-dasharray="6 6" fill="none" opacity="0.7" />
+
+  <!-- Typography Banner Ring -->
+  <circle cx="256" cy="256" r="188" stroke="#090d16" stroke-width="56" fill="none" />
+  <circle cx="256" cy="256" r="215" stroke="url(#goldGrad)" stroke-width="3" fill="none" />
+  <circle cx="256" cy="256" r="160" stroke="url(#goldGrad)" stroke-width="3" fill="none" />
+
+  <!-- Top Text: ★ GREATSTAR.Z.N.W ★ -->
+  <text fill="#fde047" font-size="27" font-weight="900" letter-spacing="4.5" font-family="system-ui, -apple-system, sans-serif">
+    <textPath href="#textPathTop" startOffset="50%" textAnchor="middle">
+      ★ GREATSTAR.Z.N.W ★
+    </textPath>
+  </text>
+
+  <!-- Bottom Text: ⚙ ZAW NAING WIN ⚙ (UPRIGHT!) -->
+  <text fill="#38bdf8" font-size="25" font-weight="900" letter-spacing="5" font-family="system-ui, -apple-system, sans-serif">
+    <textPath href="#textPathBottom" startOffset="50%" textAnchor="middle">
+      ⚙ ZAW NAING WIN ⚙
+    </textPath>
+  </text>
+
+  <!-- Inner Engine Core Hub -->
+  <circle cx="256" cy="256" r="143" fill="url(#slateRadial)" stroke="url(#goldGrad)" stroke-width="4.5" />
+
+  <!-- Timing Pinion Gear (ပင်နီယံသွား) -->
+  <g transform="translate(256, 256) scale(2.13) translate(-120, -120)">
+    {/* Inner Teeth */}
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(30 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(60 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(90 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(120 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(150 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(180 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(210 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(240 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(270 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(300 120 120)" />
+    <rect x="117.5" y="54" width="5" height="5" rx="1" fill="url(#chromeGrad)" stroke="#334155" stroke-width="0.5" transform="rotate(330 120 120)" />
+
+    <!-- Diesel Piston (ပစ္စတင်) -->
+    <g transform="translate(120, 120) rotate(-32) translate(-120, -120)">
+      <path d="M 116 110 L 115 158 C 115 163 125 163 125 158 L 124 110 Z" fill="url(#chromeGrad)" stroke="#1e293b" stroke-width="1" />
+      <line x1="120" y1="115" x2="120" y2="154" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" />
+      <circle cx="120" cy="158" r="7" fill="url(#goldGrad)" stroke="#78350f" stroke-width="1" />
+      <circle cx="120" cy="158" r="3.5" fill="#020617" />
+      <circle cx="120" cy="108" r="4.5" fill="url(#goldGrad)" stroke="#78350f" stroke-width="0.8" />
+      <circle cx="120" cy="108" r="2" fill="#020617" />
+      <path d="M 108 72 L 132 72 L 132 102 C 132 105 129 106 127 104 L 127 96 L 113 96 L 113 104 C 111 106 108 105 108 102 Z" fill="url(#chromeGrad)" stroke="url(#goldGrad)" stroke-width="1.2" />
+      <line x1="108" y1="76" x2="132" y2="76" stroke="#0f172a" stroke-width="1.2" />
+      <line x1="108" y1="80" x2="132" y2="80" stroke="#0f172a" stroke-width="1.2" />
+      <line x1="108" y1="84" x2="132" y2="84" stroke="#0f172a" stroke-width="1.2" />
+      <circle cx="120" cy="91" r="3.5" fill="#020617" stroke="url(#goldGrad)" stroke-width="0.8" />
+    </g>
+
+    <!-- Torque Wrench (ဆွဲပေါင်ရင့်ချ်) -->
+    <g transform="translate(120, 120) rotate(35) translate(-120, -120)">
+      <rect x="117" y="105" width="6" height="52" rx="2" fill="url(#goldGrad)" stroke="#78350f" stroke-width="0.8" />
+      <line x1="117" y1="115" x2="123" y2="115" stroke="#451a03" stroke-width="0.8" />
+      <line x1="117" y1="120" x2="123" y2="120" stroke="#451a03" stroke-width="0.8" />
+      <line x1="117" y1="125" x2="123" y2="125" stroke="#451a03" stroke-width="0.8" />
+      <rect x="118" y="76" width="4" height="30" fill="url(#chromeGrad)" stroke="#475569" stroke-width="0.6" />
+      <circle cx="120" cy="74" r="8" fill="url(#chromeGrad)" stroke="url(#goldGrad)" stroke-width="1.3" />
+    </g>
+
+    <!-- Torque Dial Gauge (ပေါင်ဂိတ်) -->
+    <circle cx="120" cy="120" r="24" fill="#020617" stroke="url(#goldGrad)" stroke-width="2.5" />
+    <circle cx="120" cy="120" r="21" fill="url(#slateRadial)" stroke="#334155" stroke-width="1" />
+    <path d="M 105 130 A 17 17 0 1 1 135 130" fill="none" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M 105 130 A 17 17 0 0 1 110 106" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 110 106 A 17 17 0 0 1 127 106" fill="none" stroke="#f59e0b" stroke-width="2.5" />
+    <path d="M 127 106 A 17 17 0 0 1 135 130" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" />
+    <g transform="rotate(32 120 120)">
+      <polygon points="119,122 120,105 121,122 120,123.5" fill="url(#needleGrad)" />
+      <circle cx="120" cy="120" r="3.2" fill="url(#goldGrad)" stroke="#451a03" stroke-width="0.8" />
+    </g>
+
+    <!-- Star Signature -->
+    <polygon points="120,52 122.5,58 128.5,58 123.5,62 125.5,68 120,64 114.5,68 116.5,62 111.5,58 117.5,58" fill="url(#goldGrad)" stroke="#78350f" stroke-width="0.8" />
+  </g>
 </svg>

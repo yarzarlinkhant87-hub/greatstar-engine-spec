@@ -9,18 +9,21 @@ import { kubotaEngines } from './kubotaData';
 import { yanmarEngines } from './yanmarData';
 import { masseyFergusonEngines } from './masseyFergusonData';
 import { otherAgriEngines } from './otherData';
+import { chineseTractorEngines } from './chineseTractorData';
 
 export const allAgriEngines: AgriEngine[] = [
   ...chineseTruckEngines,
   ...kubotaEngines,
   ...yanmarEngines,
   ...masseyFergusonEngines,
+  ...chineseTractorEngines,
   ...otherAgriEngines,
 ];
 
 export const brandList: { id: BrandId; label: string; count: number }[] = [
   { id: 'all', label: 'အားလုံး (All Machinery & Trucks)', count: allAgriEngines.length },
   { id: 'chinese_truck', label: 'တရုတ်ဒန့်ကား (CHINESE DUMP TRUCKS)', count: chineseTruckEngines.length },
+  { id: 'yto_lovol', label: 'YTO / LOVOL (တရုတ်ထွန်စက်ကြီး)', count: chineseTractorEngines.length },
   { id: 'kubota', label: 'KUBOTA (ကူဘိုတာ)', count: kubotaEngines.length },
   { id: 'yanmar', label: 'YANMAR (ယန်မာ)', count: yanmarEngines.length },
   { id: 'massey_ferguson', label: 'MASSEY FERGUSON (မက်ဆီဖာဂူဆန်)', count: masseyFergusonEngines.length },

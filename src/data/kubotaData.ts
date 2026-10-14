@@ -324,11 +324,11 @@ export const kubotaEngines: AgriEngine[] = [
         socketMm: '14 mm (Bi-Hex 12-pt)',
         boltSize: 'M11 x 1.25',
         sequenceStage: 'အဆင့် ၃ ဆင့်ဖြင့် ဆွဲပါ',
-        nm: 98,
-        ftlb: 72,
-        kgfm: 10.0,
+        nm: 93,
+        ftlb: 69,
+        kgfm: 9.5,
         degrees: 'သတ်မှတ်ပေါင်ပြည့်ပါက ထပ်မံဆွဲရန်မလို',
-        notes: 'အလယ်ဗဟိုမှ စတင်၍ ခရုပတ်ပုံစံ (Spiral Sequence) အပြင်သို့ အဆင့် ၃ ဆင့်ဖြင့် ဆွဲပါ'
+        notes: 'Kubota D1703 မူရင်းစံနှုန်း: 88.3 ~ 93.2 Nm (အလယ်ဗဟိုမှ စတင်၍ ခရုပတ်ပုံစံ အပြင်သို့ အဆင့် ၃ ဆင့်ဖြင့် ဆွဲပါ)'
       },
       {
         id: 'conrod-l3408',

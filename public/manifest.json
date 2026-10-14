@@ -1,15 +1,21 @@
 {
-  "name": "Agri Torque Master - စက်မှုလယ်ယာဆွဲပေါင်",
-  "short_name": "AgriTorque",
-  "description": "စက်မှုလယ်ယာ ယန္တရား & အင်ဂျင်ပြုပြင်ရေး စံချိန်စံညွှန်း မူရင်းလက်စွဲ",
+  "name": "GreatStar Engine Guide - စက်မှုလယ်ယာ & ဒန့်ကားဆွဲပေါင်လက်စွဲ",
+  "short_name": "GreatStar Engine Guide",
+  "description": "GreatStar Engine Guide - စက်မှုလယ်ယာ ယန္တရား & တရုတ်ဒန့်ကား အင်ဂျင်ဆွဲပေါင်လက်စွဲ (Zaw Naing Win)",
   "start_url": "/",
   "id": "/",
   "display": "standalone",
-  "background_color": "#022c22",
-  "theme_color": "#022c22",
+  "background_color": "#020617",
+  "theme_color": "#020617",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
     {
       "src": "/pwa-192x192.png",
       "sizes": "192x192",

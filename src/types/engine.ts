@@ -10,7 +10,8 @@ export type BrandId =
   | 'yanmar'
   | 'massey_ferguson'
   | 'ford_newholland'
-  | 'sonalika_deere';
+  | 'sonalika_deere'
+  | 'yto_lovol';
 
 export type MachineCategory =
   | 'all'

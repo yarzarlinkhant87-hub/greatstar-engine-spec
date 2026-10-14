@@ -397,10 +397,10 @@ export const yanmarEngines: AgriEngine[] = [
         socketMm: '14 mm (12-pt)',
         boltSize: 'M11 x 1.25',
         sequenceStage: 'အဆင့် ၃ ဆင့်',
-        nm: 103,
-        ftlb: 76,
-        kgfm: 10.5,
-        notes: 'အလယ်ဗဟိုမှ စတင်၍ ခရုပတ်ပုံစံ ဆွဲပါ'
+        nm: 108,
+        ftlb: 80,
+        kgfm: 11.0,
+        notes: 'Yanmar 4TNV98 မူရင်းစံနှုန်း: အလယ်ဗဟိုမှ စတင်၍ ခရုပတ်ပုံစံ အဆင့်ဆင့်ဆွဲပါ'
       },
       {
         id: 'conrod-aw82',
@@ -441,9 +441,9 @@ export const yanmarEngines: AgriEngine[] = [
       layoutType: 'inline_18',
       order: [10, 4, 1, 5, 9, 14, 18, 15, 11, 7, 2, 3, 6, 8, 12, 16, 17, 13],
       stages: [
-        { step: 1, description: 'အဆင့် ၁', nm: 45, ftlb: 33, kgfm: 4.6 },
-        { step: 2, description: 'အဆင့် ၂', nm: 75, ftlb: 55, kgfm: 7.6 },
-        { step: 3, description: 'အဆင့် ၃ စံချိန်ပြည့်', nm: 103, ftlb: 76, kgfm: 10.5 }
+        { step: 1, description: 'အဆင့် ၁ ကနဦးဆွဲခြင်း', nm: 45, ftlb: 33, kgfm: 4.6 },
+        { step: 2, description: 'အဆင့် ၂ အလယ်အလတ်ဆွဲခြင်း', nm: 78, ftlb: 57.5, kgfm: 8.0 },
+        { step: 3, description: 'အဆင့် ၃ စံချိန်ပြည့်ဆွဲခြင်း', nm: 108, ftlb: 80, kgfm: 11.0 }
       ],
       notes: 'အလယ်မှစ၍ အပြင်သို့ စက်ဝိုင်းပုံစံ ဆွဲပါ'
     },
